@@ -14,7 +14,7 @@ local function onEnterMicrophone(self)
     inZone = self.uuid
 end
 
-local function onExitMicrophone(zone)
+local function onExitMicrophone(self)
     lib.hideTextUI()
     exports["pma-voice"]:clearProximityOverride()
     inZone = false
@@ -27,7 +27,8 @@ local function GenerateZones(zones)
                 coords = v.coords,
                 distance = 2.0,
                 onEnter = onEnterMicrophone,
-                onExit = onExitMicrophone
+                onExit = onExitMicrophone,
+                uuid = v.uuid,
 
             })
         else
@@ -37,7 +38,8 @@ local function GenerateZones(zones)
                 thickness = v.thickness,
                 debug = Config.Debug,
                 onEnter = onEnterMicrophone,
-                onExit = onExitMicrophone
+                onExit = onExitMicrophone,
+                uuid = v.uuid,
             })
         end
     end
@@ -156,13 +158,15 @@ RegisterNetEvent("snipe-microphones:client:createNewMicrophone", function(data)
             debug = Config.Debug,
             onEnter = onEnterMicrophone,
             onExit = onExitMicrophone,
+            uuid = data.uuid,
         })
     else
         points[data.uuid] = lib.points.new({
             coords = data.coords,
             distance = 2.0,
             onEnter = onEnterMicrophone,
-            onExit = onExitMicrophone
+            onExit = onExitMicrophone,
+            uuid = data.uuid,
 
         })
     end
