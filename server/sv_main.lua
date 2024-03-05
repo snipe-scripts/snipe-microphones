@@ -48,7 +48,8 @@ RegisterNetEvent("snipe-microphones:server:createMicrophone", function(data)
             points = data.points,
             thickness = data.thickness,
             name = data.name,
-            type = data.type
+            type = data.type,
+            range = data.range,
         }
     else
         locationData = {
@@ -58,6 +59,7 @@ RegisterNetEvent("snipe-microphones:server:createMicrophone", function(data)
             type = data.type,
             model = data.model,
             name = data.name,
+            range = data.range,
         }
     end
     LocationsTable[#LocationsTable + 1] = locationData

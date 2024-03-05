@@ -10,7 +10,7 @@ local inZone
 
 local function onEnterMicrophone(self)
     lib.showTextUI("You are speaking in a microphone")
-    exports["pma-voice"]:overrideProximityRange(50.0, true)
+    exports["pma-voice"]:overrideProximityRange(self.range or 50.0, true)
     inZone = self.uuid
 end
 
@@ -29,6 +29,7 @@ local function GenerateZones(zones)
                 onEnter = onEnterMicrophone,
                 onExit = onExitMicrophone,
                 uuid = v.uuid,
+                range = v.range or 50.0,
 
             })
         else
@@ -40,12 +41,22 @@ local function GenerateZones(zones)
                 onEnter = onEnterMicrophone,
                 onExit = onExitMicrophone,
                 uuid = v.uuid,
+                range = v.range or 50.0,
             })
         end
     end
 end
 
 local function createZone()
+    local input = lib.inputDialog("Enter Model", {
+        { type = 'number', label = "Enter Range", default = 50.0}
+    })
+    if input and input[1] then
+        range = input[1]
+    else
+        lib.notify({type = "error", description = "No Range Specified"})
+        return
+    end
     local options = {
         name = nil,
         placeholder = "Enter the name of the zone",
@@ -57,18 +68,21 @@ local function createZone()
     end , options) -- (optional) )
     local data = Citizen.Await(p)
     data.type = "zone"
+    data.range = range
     TriggerServerEvent("snipe-microphones:server:createMicrophone", data)
 end
 
 local function createObject()
     local input = lib.inputDialog("Enter Model", {
         { type = 'input', label = "Enter the Name of The location" },
-        { type = 'input', label = "Enter the model name to spawn", default = "v_club_roc_micstd" }
+        { type = 'input', label = "Enter the model name to spawn", default = "v_club_roc_micstd" },
+        { type = 'number', label = "Enter Range", default = 50.0}
     })
     if input and input[1] and input[2] and IsModelValid(input[2]) then
         obj = input[2]
     else
         lib.notify({type = "error", description = "Invalid Model"})
+        return
     end
     lib.requestModel(obj)
     placingObj = CreateObject(obj, 1.0, 1.0, 1.0, false, true, true)
@@ -96,7 +110,7 @@ local function createObject()
             if IsControlJustReleased(0, 38) then
                 lib.hideTextUI()
                 DeleteEntity(placingObj)
-                local data = {type = "object", coords = objCoords, heading = heading, model = obj, name = input[1]}
+                local data = {type = "object", coords = objCoords, heading = heading, model = obj, name = input[1], range = input[3] or 50.0}
                 TriggerServerEvent("snipe-microphones:server:createMicrophone", data)
                 placingObj = nil
                 lib.hideTextUI()
@@ -159,6 +173,7 @@ RegisterNetEvent("snipe-microphones:client:createNewMicrophone", function(data)
             onEnter = onEnterMicrophone,
             onExit = onExitMicrophone,
             uuid = data.uuid,
+            range = data.range or 50.0,
         })
     else
         points[data.uuid] = lib.points.new({
@@ -167,6 +182,7 @@ RegisterNetEvent("snipe-microphones:client:createNewMicrophone", function(data)
             onEnter = onEnterMicrophone,
             onExit = onExitMicrophone,
             uuid = data.uuid,
+            range = data.range or 50.0,
 
         })
     end
