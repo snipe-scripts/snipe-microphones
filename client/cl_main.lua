@@ -8,16 +8,34 @@ local points = {}
 local MicrophoneZones = {}
 local inZone
 
+local isMicrophoneEnabled = false
+
 local function onEnterMicrophone(self)
-    lib.showTextUI("You are speaking in a microphone")
+    lib.showTextUI("You are speaking in a microphone | [G] to toggle")
     exports["pma-voice"]:overrideProximityRange(self.range or 50.0, true)
+    isMicrophoneEnabled = true
     inZone = self.uuid
 end
 
 local function onExitMicrophone(self)
     lib.hideTextUI()
     exports["pma-voice"]:clearProximityOverride()
+    isMicrophoneEnabled = false
     inZone = false
+end
+
+local function insideZone(self)
+    if IsControlJustPressed(0, 47) then
+        if isMicrophoneEnabled then
+            exports["pma-voice"]:clearProximityOverride()
+            isMicrophoneEnabled = false
+            lib.showTextUI("You are not speaking in a microphone | [G] to toggle")
+        else
+            exports["pma-voice"]:overrideProximityRange(self.range or 50.0, true)
+            isMicrophoneEnabled = true
+            lib.showTextUI("You are speaking in a microphone | [G] to toggle")
+        end
+    end
 end
 
 local function GenerateZones(zones)
@@ -28,6 +46,7 @@ local function GenerateZones(zones)
                 distance = 2.0,
                 onEnter = onEnterMicrophone,
                 onExit = onExitMicrophone,
+                nearby = insideZone,
                 uuid = v.uuid,
                 range = v.range or 50.0,
 
@@ -40,6 +59,7 @@ local function GenerateZones(zones)
                 debug = Config.Debug,
                 onEnter = onEnterMicrophone,
                 onExit = onExitMicrophone,
+                inside = insideZone,
                 uuid = v.uuid,
                 range = v.range or 50.0,
             })
