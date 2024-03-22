@@ -192,6 +192,7 @@ RegisterNetEvent("snipe-microphones:client:createNewMicrophone", function(data)
             debug = Config.Debug,
             onEnter = onEnterMicrophone,
             onExit = onExitMicrophone,
+            inside = insideZone,
             uuid = data.uuid,
             range = data.range or 50.0,
         })
@@ -201,6 +202,7 @@ RegisterNetEvent("snipe-microphones:client:createNewMicrophone", function(data)
             distance = 2.0,
             onEnter = onEnterMicrophone,
             onExit = onExitMicrophone,
+            inside = insideZone,
             uuid = data.uuid,
             range = data.range or 50.0,
 
